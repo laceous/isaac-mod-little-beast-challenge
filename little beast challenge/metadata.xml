@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+    <name>Little Beast Challenge</name>
+    <directory>little beast challenge</directory>
+    <id>2884230835</id>
+    <description>[url=https://steamcommunity.com/sharedfiles/filedetails/?id=2498073499]Little Beast[/url] is a cool modded familiar that doesn't come with its own challenge. This mod aims to correct that.
+
+Start as a blindfolded Isaac riding A Pony. You'll get one Little Beast upgraded with Baby-Bender and Forgotten Lullaby. Travel through the Repentance floors, back through the Ascent, and face off against the Beast. Once you arrive at the Beast, in addition to Dogma, you'll also be given a few extra Little Beasts to help get you through all that tanky boss HP.
+
+Requirements:
+[list]
+    [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2498073499]Little Beast[/url]
+[/list]
+
+Starting items:
+[list]
+    [*]Little Beast (familiar)
+    [*]Baby-Bender (smelted trinket / gives familiars homing shots)
+    [*]Forgotten Lullaby (smelted trinket / gives familiars higher rate of fire)
+    [*]A Pony (pocket slot / flight)
+    [*]AAA Battery (trinket / lets A Pony recharge after each room)
+[/list]
+
+The knife pieces are not required. The mirror will be broken preventing access to Knife Piece 1. This will also prevent the mines escape sequence (with Knife Piece 2) from spawning.
+
+Items like the D4 shouldn't show up, but be careful. If you lose your Little Beast for any reason, that's a failure scenario. The whole point of this challenge is Beast vs Little Beast.
+
+You can play co-op if you want, but only the first player will get a Little Beast.</description>
+    <version>1.1</version>
+    <visibility>Public</visibility>
+    <tag id="Lua"/>
+    <tag id="Familiars"/>
+    <tag id="Challenges"/>
+</metadata>

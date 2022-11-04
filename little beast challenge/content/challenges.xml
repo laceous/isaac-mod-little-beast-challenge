@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<challenges version="1">
+    <!-- https://wofsauge.github.io/IsaacDocs/rep/xml/challenges.html -->
+    <!-- isaac -->
+    <!-- hard mode -->
+    <challenge id="1" name="Little Beast Challenge" playertype="0" canshoot="false" endstage="13" secretpath="true" difficulty="1" />
+</challenges>
