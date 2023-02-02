@@ -1,7 +1,7 @@
 local mod = RegisterMod('Little Beast Challenge', 1)
 local game = Game()
 
--- requires the little beast mod
+-- requires the little beast mod (which loads before this mod)
 mod.littleBeastItemId = Isaac.GetItemIdByName('Little Beast')
 mod.littleBeastEntityType = Isaac.GetEntityTypeByName('Little Beast')
 mod.littleBeastEntityVariant = Isaac.GetEntityVariantByName('Little Beast')
@@ -16,12 +16,19 @@ function mod:onGameStart(isContinue)
     game:SetStateFlag(GameStateFlag.STATE_BACKWARDS_PATH_INIT, true)
     
     local itemPool = game:GetItemPool()
-    -- these items could remove little beast, which is a failure scenario
+    -- remove items that could change our loadout, are buggy w/ little beast, or could remove little beast
+    itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_BROKEN_MODEM)
+    itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_CLICKER)
     itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_D4)
     itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_D100)
+    itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_D_INFINITY)
+    itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_GENESIS)
+    itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_METRONOME)
     itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_SACRIFICIAL_ALTAR)
-    -- buggy when used with little beast
-    itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_BROKEN_MODEM)
+    itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_TMTRAINER)
+    itemPool:RemoveTrinket(TrinketType.TRINKET_ERROR)
+    itemPool:RemoveTrinket(TrinketType.TRINKET_EXPANSION_PACK)
+    itemPool:RemoveTrinket(TrinketType.TRINKET_M)
     if mod:isLittleBeastModAvail() then
       -- we already have a little beast, we don't need any more
       itemPool:RemoveCollectible(mod.littleBeastItemId)
@@ -53,17 +60,18 @@ function mod:onNewRoom()
     if stageType == StageType.STAGETYPE_REPENTANCE or stageType == StageType.STAGETYPE_REPENTANCE_B then
       if stage == LevelStage.STAGE1_2 or (isCurse and stage == LevelStage.STAGE1_1) then
         if roomDesc.GridIndex >= 0 then
-          for i = 0, DoorSlot.NUM_DOOR_SLOTS - 1 do
-            local door = room:GetDoor(i)
-            if door and door.TargetRoomIndex == GridRooms.ROOM_MIRROR_IDX then
-              door:TryBlowOpen(false, nil) -- no knife pieces
-            end
-          end
+          mod:removeDoor(GridRooms.ROOM_MIRROR_IDX)
+          mod:replaceWhiteFireplace()
         elseif roomDesc.GridIndex == GridRooms.ROOM_SECRET_EXIT_IDX and room:GetType() == RoomType.ROOM_SECRET_EXIT then
           mod:openTrapdoor()
         end
       elseif stage == LevelStage.STAGE2_2 or (isCurse and stage == LevelStage.STAGE2_1) then
-        if roomDesc.GridIndex == GridRooms.ROOM_SECRET_EXIT_IDX and room:GetType() == RoomType.ROOM_SECRET_EXIT then
+        if roomDesc.GridIndex >= 0 then
+          if mod:removeDoor(GridRooms.ROOM_MINESHAFT_IDX) then
+            mod:removeMinecart()
+          end
+          mod:removeRailPlate()
+        elseif roomDesc.GridIndex == GridRooms.ROOM_SECRET_EXIT_IDX and room:GetType() == RoomType.ROOM_SECRET_EXIT then
           mod:openTrapdoor()
         end
       end
@@ -104,14 +112,13 @@ function mod:onPlayerInit(player)
   if mod:countLittleBeasts() == 0 then
     -- limit to one little beast
     player:AddCollectible(mod.littleBeastItemId, 0, true, ActiveSlot.SLOT_PRIMARY, 0)
-    mod.playerHash = GetPtrHash(player)
   end
   for _, v in ipairs({ TrinketType.TRINKET_BABY_BENDER, TrinketType.TRINKET_FORGOTTEN_LULLABY }) do
     player:AddTrinket(v)
     player:UseActiveItem(CollectibleType.COLLECTIBLE_SMELTER, false, false, true, false, -1)
   end
-  player:SetPocketActiveItem(CollectibleType.COLLECTIBLE_PONY, ActiveSlot.SLOT_POCKET, false)
   player:AddTrinket(TrinketType.TRINKET_AAA_BATTERY)
+  mod.playerHash = GetPtrHash(player)
 end
 
 -- filtered to PLAYER_ISAAC
@@ -121,6 +128,8 @@ function mod:onPeffectUpdate(player)
   end
   
   if mod.playerHash and mod.playerHash == GetPtrHash(player) then
+    -- SetPocketActiveItem crashes in onPlayerInit when continuing a run after fully shutting down the game
+    player:SetPocketActiveItem(CollectibleType.COLLECTIBLE_PONY, ActiveSlot.SLOT_POCKET, false)
     player:RespawnFamiliars() -- otherwise little beast doesn't show up
     mod.playerHash = nil
   end
@@ -141,12 +150,51 @@ function mod:killAllPlayers()
   end
 end
 
+function mod:removeDoor(targetRoomIdx)
+  local room = game:GetRoom()
+  local removed = false
+  
+  for i = 0, DoorSlot.NUM_DOOR_SLOTS - 1 do
+    local door = room:GetDoor(i)
+    if door and door.TargetRoomIndex == targetRoomIdx then
+      room:RemoveDoor(i)
+      removed = true
+    end
+  end
+  
+  return removed
+end
+
+function mod:replaceWhiteFireplace()
+  for _, v in ipairs(Isaac.FindByType(EntityType.ENTITY_FIREPLACE, 4, -1, false, false)) do -- white fireplace, subtype can be 0 or 2?
+    v:Remove()
+    Isaac.Spawn(EntityType.ENTITY_FIREPLACE, 2, 0, v.Position, Vector.Zero, nil) -- blue fireplace
+  end
+end
+
 function mod:openTrapdoor()
   local room = game:GetRoom()
   
   local gridEntity = room:GetGridEntityFromPos(room:GetCenterPos())
   if gridEntity and gridEntity:GetType() == GridEntityType.GRID_TRAPDOOR then
     gridEntity.State = 1 -- open w/o knife piece
+  end
+end
+
+function mod:removeMinecart()
+  for _, v in ipairs(Isaac.FindByType(EntityType.ENTITY_MINECART, 10, 0, false, false)) do -- quest minecart
+    v:Remove()
+  end
+end
+
+function mod:removeRailPlate()
+  local room = game:GetRoom()
+  
+  for i = 16, 418 do -- all grid indexes 1x1 - 2x2
+    local gridEntity = room:GetGridEntity(i)
+    if gridEntity  and gridEntity:GetType() == GridEntityType.GRID_PRESSURE_PLATE and gridEntity:GetVariant() == 3 then -- rail plate
+      room:RemoveGridEntity(i, 0, false)
+    end
   end
 end
 

@@ -2,6 +2,8 @@
 <challenges version="1">
     <!-- https://wofsauge.github.io/IsaacDocs/rep/xml/challenges.html -->
     <!-- isaac -->
+    <!-- home -->
     <!-- hard mode -->
-    <challenge id="1" name="Little Beast Challenge" playertype="0" canshoot="false" endstage="13" secretpath="true" difficulty="1" />
+    <!-- no sacrifice or dice rooms -->
+    <challenge id="1" name="Little Beast Challenge" playertype="0" canshoot="false" endstage="13" secretpath="true" difficulty="1" roomfilter="13,21" />
 </challenges>
