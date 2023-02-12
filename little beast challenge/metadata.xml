@@ -26,7 +26,7 @@ The knife pieces are not required. The entrances to the mirror world and mines e
 Items like the D4 shouldn't show up, but be careful. If you lose your Little Beast for any reason, that's a failure scenario. The whole point of this challenge is Beast vs Little Beast.
 
 You can play co-op if you want, but only the first player will get a Little Beast.</description>
-    <version>1.3</version>
+    <version>1.4</version>
     <visibility>Public</visibility>
     <tag id="Lua"/>
     <tag id="Familiars"/>

@@ -139,6 +139,17 @@ function mod:onPeffectUpdate(player)
   end
 end
 
+function mod:getCard(rng, card, includeCards, includeRunes, onlyRunes)
+  if not mod:isChallenge() then
+    return
+  end
+  
+  -- random dice room effect including D4
+  if card == Card.CARD_REVERSE_WHEEL_OF_FORTUNE then
+    return Card.CARD_WHEEL_OF_FORTUNE
+  end
+end
+
 function mod:isLittleBeastModAvail()
   return mod.littleBeastItemId > -1 and mod.littleBeastEntityType > 0 and mod.littleBeastEntityVariant > -1
 end
@@ -221,3 +232,4 @@ mod:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, mod.onNewRoom)
 mod:AddCallback(ModCallbacks.MC_POST_UPDATE, mod.onUpdate)
 mod:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, mod.onPlayerInit, 0) -- 0 is player, 1 is co-op baby
 mod:AddCallback(ModCallbacks.MC_POST_PEFFECT_UPDATE, mod.onPeffectUpdate, PlayerType.PLAYER_ISAAC)
+mod:AddCallback(ModCallbacks.MC_GET_CARD, mod.getCard)
