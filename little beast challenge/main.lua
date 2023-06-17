@@ -81,10 +81,7 @@ function mod:onNewRoom()
       end
     elseif stage == LevelStage.STAGE8 and room:GetType() == RoomType.ROOM_DUNGEON and roomDesc.Data.Variant == 666 and roomDesc.Data.Name == 'Beast Room' then
       -- make the beast fight a bit more fair
-      for i = mod:countLittleBeasts() + 1, 4 do
-        local player = game:GetPlayer(0)
-        player:AddCollectible(mod.littleBeastItemId, 0, true, ActiveSlot.SLOT_PRIMARY, 0)
-      end
+      mod:addMoreLittleBeasts()
     end
   end
 end
@@ -119,7 +116,7 @@ function mod:onPlayerInit(player)
   end
   for _, v in ipairs({ TrinketType.TRINKET_BABY_BENDER, TrinketType.TRINKET_FORGOTTEN_LULLABY }) do
     player:AddTrinket(v)
-    player:UseActiveItem(CollectibleType.COLLECTIBLE_SMELTER, false, false, true, false, -1)
+    player:UseActiveItem(CollectibleType.COLLECTIBLE_SMELTER, false, false, true, false, -1, 0)
   end
   player:AddTrinket(TrinketType.TRINKET_AAA_BATTERY)
   mod.playerHash = GetPtrHash(player)
@@ -205,11 +202,19 @@ end
 function mod:removeRailPlate()
   local room = game:GetRoom()
   
-  for i = 16, 418 do -- all grid indexes 1x1 - 2x2
+  for i = 0, room:GetGridSize() - 1 do
     local gridEntity = room:GetGridEntity(i)
     if gridEntity  and gridEntity:GetType() == GridEntityType.GRID_PRESSURE_PLATE and gridEntity:GetVariant() == 3 then -- rail plate
       room:RemoveGridEntity(i, 0, false)
     end
+  end
+end
+
+function mod:addMoreLittleBeasts()
+  local player = game:GetPlayer(0)
+  
+  for i = mod:countLittleBeasts() + 1, 4 do
+    player:AddCollectible(mod.littleBeastItemId, 0, true, ActiveSlot.SLOT_PRIMARY, 0)
   end
 end
 
