@@ -79,7 +79,7 @@ function mod:onNewRoom()
           mod:openTrapdoor()
         end
       end
-    elseif stage == LevelStage.STAGE8 and room:GetType() == RoomType.ROOM_DUNGEON and roomDesc.Data.Variant == 666 and roomDesc.Data.Name == 'Beast Room' then
+    elseif stage == LevelStage.STAGE8 and room:GetType() == RoomType.ROOM_DUNGEON and roomDesc.Data.StageID == 35 and roomDesc.Data.Variant == 666 then -- Beast Room
       -- make the beast fight a bit more fair
       mod:addMoreLittleBeasts()
     end
